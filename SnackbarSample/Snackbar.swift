@@ -39,7 +39,7 @@ struct Snackbar: View {
                 VStack {
                     Spacer()
                     if !isHidden {
-                        VStack{
+                        ZStack{
                             Text(message)
                                 .foregroundColor(.white)
                                 .padding()
@@ -58,6 +58,9 @@ struct Snackbar: View {
                                     action()
                                     hiddenWithAnimation()
                                 }
+                                .frame(width: 50, height: 25, alignment: .trailing) // alignment not work
+                                .offset(x: 0, y: -20)
+                                .padding()
                             }
                         }
                     }
@@ -84,6 +87,8 @@ extension View {
         Snackbar(
             presentingView: self,
             message: configuration.wrappedValue.message,
+            action: configuration.wrappedValue.action,
+            actionName: configuration.wrappedValue.actionName,
             isHidden: configuration.isHidden
         )
     }

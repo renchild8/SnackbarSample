@@ -6,6 +6,10 @@ struct ContentView: View {
     
     @State var snackbarConfiguration = Snackbar.Configuration(
         message: "Hello, World!",
+        action: {
+            print("Action")
+        },
+        actionName: "Cancel",
         isHidden: true
     )
     
