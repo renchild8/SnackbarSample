@@ -11,9 +11,9 @@ struct Snackbar: View {
 
     @State private var opacity = 0.0
     @Binding private var isHidden: Bool
-    
+
     private let presentingView: AnyView
-    
+
     private var message: String
     private var action: (() -> Void)?
     private var actionName: String?
@@ -39,36 +39,38 @@ struct Snackbar: View {
                 VStack {
                     Spacer()
                     if !isHidden {
-                        ZStack{
-                            Text(message)
-                                .foregroundColor(.white)
-                                .padding()
-                                .frame(width: geometry.size.width * 0.9, height: 50)
-                                .shadow(radius: 4)
-                                .background(Color.black)
-                                .cornerRadius(8)
-                                .offset(x: 0, y: -20)
-                                .opacity(opacity)
-                                .animation(.linear, value: opacity)
-                                .onAppear {
-                                    hiddenWithAnimation()
+                        GroupBox {
+                            HStack {
+                                Text(message)
+                                    .frame(width: geometry.size.width * 0.7, height: 50)
+                                    .foregroundColor(.black)
+
+                                if let action = action, let actionName = actionName {
+                                    Button(actionName) {
+                                        action()
+                                        hiddenWithAnimation()
+                                    }
+                                    .frame(width: geometry.size.width * 0.2, height: 25)
                                 }
-                            if let action = action, let actionName = actionName {
-                                Button(actionName) {
-                                    action()
-                                    hiddenWithAnimation()
-                                }
-                                .frame(width: 50, height: 25, alignment: .trailing) // alignment not work
-                                .offset(x: 0, y: -20)
-                                .padding()
                             }
+                        }
+                        .frame(width: geometry.size.width * 0.9, height: 50)
+                        .compositingGroup()
+                        .cornerRadius(8)
+                        .shadow(radius: 4)
+                        .offset(x: 0, y: -20)
+                        .background(.white)
+                        .opacity(opacity)
+                        .animation(.linear, value: opacity)
+                        .onAppear {
+                            hiddenWithAnimation()
                         }
                     }
                 }
             }
         }
     }
-    
+
     private func hiddenWithAnimation() {
         opacity = 1.0
         Task {
@@ -78,8 +80,8 @@ struct Snackbar: View {
                 opacity = 0.0
             }
         }
-        
     }
+
 }
 
 extension View {
@@ -92,4 +94,27 @@ extension View {
             isHidden: configuration.isHidden
         )
     }
+}
+
+#Preview {
+    @Previewable @State var snackbarConfiguration = Snackbar.Configuration(
+        message: "Hello, World!",
+        action: {
+            print("Action")
+        },
+        actionName: "Cancel",
+        isHidden: true
+    )
+
+    GeometryReader { geometry in
+        VStack {
+            Spacer()
+            Button("Display Snackbar") {
+                $snackbarConfiguration.isHidden.wrappedValue.toggle()
+            }.frame(alignment: .center)
+            Spacer()
+        }.frame(width: geometry.size.width, height: geometry.size.height)
+    }
+    .snackbar(configuration: $snackbarConfiguration)
+
 }
